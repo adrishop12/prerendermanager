@@ -4,7 +4,7 @@ from datetime import datetime
 import xml.etree.ElementTree as ET
 import re
 
-BASE_URL = 'http://localhost:3000'
+BASE_URL = 'https://service.pbarmyff.com'
 API_BASE = f'{BASE_URL}/api/cache'
 
 # User-Agents for desktop and mobile
