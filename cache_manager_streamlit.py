@@ -30,6 +30,34 @@ def trigger_both_variants(url):
         errors.append(f"Mobile: {e}")
     return errors
 
+def fetch_cache():
+    try:
+        resp = requests.get(API_BASE)
+        data = resp.json()
+        if data.get("success"):
+            items = data.get("items", [])
+            # Group by URL, show variants in dropdown
+            url_dict = {}
+            for item in items:
+                url = item.get("url", "")
+                variant = item.get("variant", "desktop")
+                if url not in url_dict:
+                    url_dict[url] = []
+                url_dict[url].append(item)
+            return url_dict
+        else:
+            st.error("Failed to fetch cache: {}".format(data.get("error", "Unknown error")))
+            return {}
+    except Exception as e:
+        st.error("Error fetching cache: {}".format(e))
+        return {}
+
+def format_datetime(dt):
+    try:
+        return datetime.fromisoformat(dt).strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return dt
+
 st.set_page_config(page_title="Prerender Cache Manager", layout="wide")
 st.title("Prerender Cache Manager")
 
@@ -115,34 +143,6 @@ if st.sidebar.button("Clear All Cache", type="primary"):
             st.error("Some caches could not be cleared:\n" + "\n".join(errors))
     except Exception as e:
         st.error("Error clearing cache: {}".format(e))
-
-def fetch_cache():
-    try:
-        resp = requests.get(API_BASE)
-        data = resp.json()
-        if data.get("success"):
-            items = data.get("items", [])
-            # Group by URL, show variants in dropdown
-            url_dict = {}
-            for item in items:
-                url = item.get("url", "")
-                variant = item.get("variant", "desktop")
-                if url not in url_dict:
-                    url_dict[url] = []
-                url_dict[url].append(item)
-            return url_dict
-        else:
-            st.error("Failed to fetch cache: {}".format(data.get("error", "Unknown error")))
-            return {}
-    except Exception as e:
-        st.error("Error fetching cache: {}".format(e))
-        return {}
-
-def format_datetime(dt):
-    try:
-        return datetime.fromisoformat(dt).strftime("%Y-%m-%d %H:%M:%S")
-    except Exception:
-        return dt
 
 # --- Main Table ---
 cache_dict = fetch_cache()
