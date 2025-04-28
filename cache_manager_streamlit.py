@@ -75,12 +75,16 @@ with st.sidebar.form(key="sitemap_cache_form"):
             resp = requests.get(sitemap_url)
             urls = re.findall(r'<loc>(.*?)</loc>', resp.text)
             sitemap_errors = []
+            # Fetch current cache to avoid recaching already-cached URLs
+            current_cache = fetch_cache()  # returns {url: [variants]}
             for url in urls:
+                if url in current_cache:
+                    continue  # Skip already cached URLs
                 errors = trigger_both_variants(url)
                 if errors:
                     sitemap_errors.append(f"{url}: {', '.join(errors)}")
             if not sitemap_errors:
-                st.sidebar.success("All sitemap URLs submitted for caching (desktop & mobile).")
+                st.sidebar.success("All uncached sitemap URLs submitted for caching (desktop & mobile).")
             else:
                 st.sidebar.error("Some sitemap URLs failed to cache:\n" + "\n".join(sitemap_errors))
         except Exception as e:
