@@ -1,4 +1,5 @@
 import streamlit as st
+st.set_page_config(page_title="Prerender Cache Manager", layout="wide")
 import requests
 from datetime import datetime
 import xml.etree.ElementTree as ET
@@ -6,6 +7,20 @@ import re
 
 BASE_URL = 'https://service.pbarmyff.com'
 API_BASE = f'{BASE_URL}/api/cache'
+
+# --- Key System ---
+KEY_REQUIRED = "LIBMAN69"
+if "auth_key" not in st.session_state:
+    st.session_state["auth_key"] = ""
+
+st.sidebar.markdown("## Enter Access Key")
+key_input = st.sidebar.text_input("Access Key", type="password", value=st.session_state["auth_key"])
+if st.sidebar.button("Submit Key"):
+    st.session_state["auth_key"] = key_input
+
+if st.session_state["auth_key"] != KEY_REQUIRED:
+    st.warning("Please enter the correct access key to use the cache manager features.")
+    st.stop()
 
 # User-Agents for desktop and mobile
 DESKTOP_UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/89.0.4389.82 Safari/537.36 Prerender (+https://github.com/prerender/prerender)'
@@ -58,7 +73,6 @@ def format_datetime(dt):
     except Exception:
         return dt
 
-st.set_page_config(page_title="Prerender Cache Manager", layout="wide")
 st.title("Prerender Cache Manager")
 
 # --- Sidebar Controls ---
